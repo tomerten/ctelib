@@ -142,3 +142,29 @@ std::vector<double> CalcRMS(std::vector<std::vector<double>> dist) {
 
   return MS;
 }
+
+std::vector<double> HistogramToSQRTofCumul(std::vector<int> inputHistogram,
+                                           double coeff) {
+
+  /* The name is a badly chose here as it was originally used to calculate
+   * cumulated distributions which      */
+  /* turned out to be not necessary - the function takes a histogram as input,
+   * multiplies it with a constant  */
+  /* vector before taking the sqrt of each element. This produces a vector that
+   * is used in the IBSNew routine */
+  /* to multiply with particle momenta representing the IBS contribution */
+  int n = inputHistogram.size();
+  std::vector<double> vcoeff(n);
+
+  // fill constant vector
+  std::fill(vcoeff.begin(), vcoeff.end(), coeff);
+  // multiply with constant
+  std::transform(inputHistogram.begin(), inputHistogram.end(), vcoeff.begin(),
+                 vcoeff.begin(), std::multiplies<double>());
+
+  // take sqrt
+  std::transform(vcoeff.begin(), vcoeff.end(), vcoeff.begin(),
+                 (double (*)(double))sqrt);
+
+  return vcoeff;
+}
