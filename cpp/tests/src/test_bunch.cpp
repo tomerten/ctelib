@@ -27,6 +27,8 @@ int main() {
   bp["ex"] = 5.5e-9;
   bp["ey"] = 0.05 * bp["ex"];
   bp["timeRatio"] = 1.0;
+  bp["fracibstot"] = 1.0;
+  bp["ibsCoupling"] = 0.0;
 
   Bunch testbunch(twheader, tw, bp, h, v);
   testbunch.printBunchParameters();

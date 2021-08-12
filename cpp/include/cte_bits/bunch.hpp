@@ -28,6 +28,7 @@ public:
   std::vector<std::vector<double>> distribution;
   std::vector<std::vector<double>> emittances;
   std::vector<std::vector<double>> ibsGrowthRates;
+  std::vector<std::vector<double>> ibsCoeff;
   std::map<std::string, std::vector<double>> bunchParametersLocal;
   std::map<std::string, double> radiationParameters;
   std::map<std::string, double> longitudinalParameters;
@@ -42,6 +43,7 @@ public:
   std::string get_date();
   void getEmittance();
   void getIBSGrowthRates(int);
+  void getIBSCoefficients();
 
   // set functions
   void setBasic();

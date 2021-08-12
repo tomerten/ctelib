@@ -4,6 +4,7 @@
 #include "../include/cte_bits/radiation.hpp"
 #include "../include/cte_bits/random.hpp"
 #include "../include/cte_bits/synch.hpp"
+#include "../include/cte_bits/utils.hpp"
 #include <algorithm>
 #include <boost/math/tools/roots.hpp>
 #include <fstream>
@@ -359,10 +360,72 @@ void Bunch::getIBSGrowthRates(int model) {
 
   std::vector<double> ibsgr;
   for (int i; i < 3; i++) {
-    ibsgr.push_back(ibs[i]);
+    ibsgr.push_back(ibs[i] * 2.0 * bunchParam["fracibstot"] *
+                    bunchParam["nMacro"] * bunchParam["timeRatio"] /
+                    bunchParam["nReal"]);
     std::printf("%12.8e\n", ibs[i]);
   }
   ibsGrowthRates.push_back(ibsgr);
+}
+
+void Bunch::getIBSCoefficients() {
+  double coeffs, coeffx, coeffy;
+  double alphaAverage;
+  double coeffMulT;
+
+  std::vector<double> ibsgr = ibsGrowthRates.back();
+  double alfax = ibsgr[1];
+  double alfay = ibsgr[2];
+  double alfap = ibsgr[0];
+
+  double dtsamp2 = 2 * longitudinalParameters["tauhat"] / bunchParam["nbins"];
+  double rmsdelta = CalcRMS(distribution)[5];
+  std::vector<double> emit = emittances.back();
+  double sigs = emit[3];
+
+  double rmsx = sqrt(emit[0] * twheader["betxavg"]);
+  double rmsy = sqrt(emit[1] * twheader["betyavg"]);
+
+  // debugging
+  // cout << "alfap " << alfap << endl << endl;
+  if (alfap > 0.0)
+    coeffs = sqrt(6.0 * alfap * twheader["trev"]) * rmsdelta;
+  else
+    coeffs = 0.00;
+
+  // coupling
+  if (bunchParam["ibsCoupling"] == 0.0) {
+    if (alfay > 0.0)
+      coeffy = sqrt(6.0 * alfay * twheader["trev"]) * rmsy;
+    else
+      coeffy = 0.0;
+
+    if (alfax > 0.0)
+      coeffx = sqrt(6.0 * alfax * twheader["trev"]) * rmsx;
+    else
+      coeffx = 0.0;
+  } else {
+    // alphaAverage
+    alphaAverage = 0.5 * (alfax + alfay);
+    if (alphaAverage > 0.0) {
+      coeffx = sqrt(6.0 * alphaAverage * twheader["trev"]) * rmsx;
+      coeffy = sqrt(6.0 * alphaAverage * twheader["trev"]) * rmsy;
+    } else {
+      coeffx = 0.0;
+      coeffy = 0.0;
+    }
+    // end if alphaAverage
+  }
+  // end if ibs coupling
+  coeffMulT = sigs * 2.0 * sqrt(pi) / (bunchParam["nMacro"] * dtsamp2 * clight);
+
+  std::vector<double> ibscoeffs;
+  ibscoeffs.push_back(coeffx);
+  ibscoeffs.push_back(coeffy);
+  ibscoeffs.push_back(coeffs);
+  ibscoeffs.push_back(coeffMulT);
+
+  ibsCoeff.push_back(ibscoeffs);
 }
 
 void Bunch::printBunchParameters() {
