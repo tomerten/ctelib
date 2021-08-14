@@ -21,4 +21,6 @@ std::vector<double> vectorMultiply(std::vector<double> x,
 std::vector<double> vectorAdd(std::vector<double> x, std::vector<double> y);
 
 std::vector<double> vectorSub(std::vector<double> x, std::vector<double> y);
-std::vector<double> CalcRMS(const std::vector<std::vector<double>> dist);
+std::vector<double> CalcRMS(std::vector<std::vector<double>> &dist);
+std::vector<double> HistogramToSQRTofCumul(std::vector<int> inputHistogram,
+                                           double coeff);

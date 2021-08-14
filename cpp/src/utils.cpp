@@ -18,8 +18,12 @@ struct ParticleTimesToInteger {
   int operator()(std::vector<double> &data, std::vector<double> &params) const {
     double out;
     double dtsamp2 = 2 * params[0] / params[1];
+    // std::printf("%-30s %12.8e\n", "dtsamp2", dtsamp2);
     out = (data[4] - params[2] + params[0]) / dtsamp2;
-    out = (int)(out + 0.5f);
+    // std::printf("%-30s %12.8e\n", "data[4]", data[4]);
+    // std::printf("%-30s %12.8e\n", "out doub", out);
+    out = (int)(out + 0.5);
+    // std::printf("%-30s %12.8e\n", "out int", out);
     return out;
   }
 };
@@ -64,32 +68,34 @@ ParticlesTimesToHistogram(std::vector<std::vector<double>> &data, int nbins,
   std::printf("%-30s %12i\n", "nbins", nbins);
   std::printf("%-30s %12.8e\n", "ts", ts);
 
-    for (std::vector<double>::iterator i = param.begin(); i != param.end(); i++)
-    { std::printf("%12.8e\n", *i);
+  for (std::vector<double>::iterator i = param.begin(); i != param.end(); i++) {
+    std::printf("%12.8e\n", *i);
+  }
 
-    // print out for debug
-    std::for_each(p.begin(), p.end(), [](std::vector<double> &particle) {
-      std::printf("%12.8e %12.8e %12.8e \n", particle[0], particle[1],
-                  particle[2]);
-    });
+  // print out for debug
+  std::for_each(p.begin(), p.end(), [](std::vector<double> &particle) {
+    std::printf("%12.8e %12.8e %12.8e \n", particle[0], particle[1],
+                particle[2]);
+  });
 
-    std::printf("\n");
-  */
+  std::printf("\n");
+*/
   std::transform(data.begin(), data.end(), p.begin(), timecomponent.begin(),
                  ParticleTimesToInteger());
   /*
-for (std::vector<int>::iterator i = timecomponent.begin();
-  i != timecomponent.end(); i++) {
-std::printf("%12i\n", *i);
-}
-*/
+    for (std::vector<int>::iterator i = timecomponent.begin();
+         i != timecomponent.end(); i++) {
+      std::printf("%12i\n", *i);
+    }
+    */
   denseHistogram(timecomponent, histogram, nbins, tauhat);
-  /* for (std::vector<int>::iterator i = histogram.begin(); i !=
- histogram.end(); i++) { std::printf("%3i", *i);
-   }
- std:
-   printf("\n");
- */
+  /*
+  for (std::vector<int>::iterator i = histogram.begin(); i != histogram.end();
+       i++) {
+    std::printf("%3i", *i);
+  };
+  std::printf("\n");
+  */
   return histogram;
 }
 
@@ -105,9 +111,10 @@ std::vector<double> getColumnMeans(std::vector<std::vector<double>> &dist) {
 
   std::for_each(dist.begin(), dist.end(), [&](const std::vector<double> &row) {
     std::transform(
-        row.begin(), row.end(), colsums.begin(), colsums.end(),
-        [&dist](double d1, double d2) { return (d1 + d2) / dist.size(); });
+        row.begin(), row.end(), colsums.begin(), colsums.begin(),
+        [&](double d1, double d2) { return (d1 + d2) / dist.size(); });
   });
+
   return colsums;
 }
 
@@ -128,16 +135,28 @@ std::vector<double> vectorSub(std::vector<double> x, std::vector<double> y) {
                  std::minus<double>());
   return x;
 }
-std::vector<double> CalcRMS(std::vector<std::vector<double>> dist) {
+std::vector<double> CalcRMS(std::vector<std::vector<double>> &dist) {
   std::vector<double> avg = getColumnMeans(dist);
-  std::vector<std::vector<double>> avgarr;
-  std::fill(avgarr.begin(), avgarr.end(), avg);
-  std::transform(dist.begin(), dist.end(), avgarr.begin(), dist.begin(),
-                 vectorSub);
-  std::transform(dist.begin(), dist.end(), dist.begin(), dist.begin(),
-                 vectorMultiply);
 
-  std::vector<double> MS = getColumnMeans(dist);
+  // for (std::vector<double>::const_iterator i = avg.begin(); i != avg.end();
+  // ++i)
+  //  std::printf("%-30s %12.8e\n", "avg", *i);
+
+  std::vector<std::vector<double>> avgarr(dist.size());
+  std::fill(avgarr.begin(), avgarr.end(), avg);
+
+  // std::for_each(avgarr.begin(), avgarr.end(), [](std::vector<double> &a) {
+  //  std::printf("%12.8e %12.8e %12.8e %12.8e %12.8e %12.8e\n", a[0], a[1],
+  //  a[2],
+  //              a[3], a[4], a[5]);
+  //});
+  std::vector<std::vector<double>> distcopy = dist;
+  std::transform(dist.begin(), dist.end(), avgarr.begin(), distcopy.begin(),
+                 vectorSub);
+  std::transform(distcopy.begin(), distcopy.end(), distcopy.begin(),
+                 distcopy.begin(), vectorMultiply);
+
+  std::vector<double> MS = getColumnMeans(distcopy);
   std::transform(MS.begin(), MS.end(), MS.begin(), (double (*)(double))sqrt);
 
   return MS;
@@ -150,14 +169,20 @@ std::vector<double> HistogramToSQRTofCumul(std::vector<int> inputHistogram,
    * cumulated distributions which      */
   /* turned out to be not necessary - the function takes a histogram as input,
    * multiplies it with a constant  */
-  /* vector before taking the sqrt of each element. This produces a vector that
-   * is used in the IBSNew routine */
+  /* vector before taking the sqrt of each element. This produces a vector
+   * that is used in the IBSNew routine */
   /* to multiply with particle momenta representing the IBS contribution */
   int n = inputHistogram.size();
-  std::vector<double> vcoeff(n);
 
-  // fill constant vector
+  std::vector<double> vcoeff(n);
   std::fill(vcoeff.begin(), vcoeff.end(), coeff);
+  /*
+  for (std::vector<double>::const_iterator i = vcoeff.begin();
+       i != vcoeff.end(); ++i)
+    std::printf("%-30s %12.8e\n", "avg", *i);
+    */
+  // fill constant vector
+
   // multiply with constant
   std::transform(inputHistogram.begin(), inputHistogram.end(), vcoeff.begin(),
                  vcoeff.begin(), std::multiplies<double>());

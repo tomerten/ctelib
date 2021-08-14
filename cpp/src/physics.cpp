@@ -179,4 +179,49 @@ void updateBeta(std::vector<std::vector<double>> &dist,
                 });
 }
 
+void updateIBS(std::vector<std::vector<double>> &dist,
+               std::map<std::string, double> &lparam,
+               std::map<std::string, double> &bparam,
+               std::map<std::string, double> &twheader, std::vector<double> &h,
+               std::vector<double> &ibsCoeffLast,
+               std::vector<double> &ibsHistCoeffLast) {
+  int n = dist.size();
+  int seed = bparam["seed"];
+  double h0 = h[0];
+  double dtsamp2 = 2.0 * lparam["tauhat"] / bparam["nbins"];
+  /*
+    std::printf("%-30s %12i\n", "size", n);
+    std::printf("%-30s %12i\n", "seed", seed);
+    std::printf("%-30s %12.8e\n", "h0", h0);
+    std::printf("%-30s %12.8e\n", "dtsamp2", dtsamp2);
+   */
+  std::for_each(dist.begin(), dist.end(), [&](std::vector<double> &particle) {
+    // calculate to which bin number the particle belongs
+    // this is to select the corresponding IBS coeffiicent
+    /*
+        std::printf("%-30s %12.8e\n", "t", particle[4]);
+        std::printf("%-30s %12.8e\n", "phisNext", lparam["phisNext"]);
+        std::printf("%-30s %12.8e\n", "h0", h0);
+        std::printf("%-30s %12.8e\n", "omega", twheader["omega"]);
+        std::printf("%-30s %12.8e\n", "ts",
+                    (lparam["phisNext"] / (h0 * twheader["omega"])));
+                    */
+    double bin =
+        (particle[4] - (lparam["phisNext"] / (h0 * twheader["omega"])) +
+         lparam["tauhat"]) /
+        dtsamp2;
+    int nk = (int)(bin + 0.5);
+    // std::printf("%-30s %12i\n", "nk", nk);
+
+    double point = ibsHistCoeffLast[nk];
+    // std::printf("%-30s %12.8e\n", "point", point);
+    double dy = point * ibsCoeffLast[1] * (2.0 * cte_random::ran3(&seed) - 1.0);
+    double dp = point * ibsCoeffLast[2] * (2.0 * cte_random::ran3(&seed) - 1.0);
+    double dx = point * ibsCoeffLast[0] * (2.0 * cte_random::ran3(&seed) - 1.0);
+
+    particle[1] += dx;
+    particle[3] += dy;
+    particle[5] += dp;
+  });
+}
 } // namespace PHYSICS

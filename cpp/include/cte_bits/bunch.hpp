@@ -29,6 +29,9 @@ public:
   std::vector<std::vector<double>> emittances;
   std::vector<std::vector<double>> ibsGrowthRates;
   std::vector<std::vector<double>> ibsCoeff;
+  std::vector<int> histogramTime;
+  std::vector<double> sqrthistogram;
+
   std::map<std::string, std::vector<double>> bunchParametersLocal;
   std::map<std::string, double> radiationParameters;
   std::map<std::string, double> longitudinalParameters;
@@ -44,6 +47,7 @@ public:
   void getEmittance();
   void getIBSGrowthRates(int);
   void getIBSCoefficients();
+  void updateIBS(std::vector<double> &);
 
   // set functions
   void setBasic();

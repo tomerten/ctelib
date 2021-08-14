@@ -21,5 +21,12 @@ void updateBeta(std::vector<std::vector<double>> &dist,
                 std::map<std::string, double> tw, double coupling, double K2L,
                 double K2SL);
 
+void updateIBS(std::vector<std::vector<double>> &dist,
+               std::map<std::string, double> &lparam,
+               std::map<std::string, double> &bparam,
+               std::map<std::string, double> &twheader, std::vector<double> &h,
+               std::vector<double> &ibsCoeffLast,
+               std::vector<double> &ibsHistCoeffLast);
+
 } // namespace PHYSICS
 #endif

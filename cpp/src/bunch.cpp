@@ -310,7 +310,7 @@ void Bunch::getIBSGrowthRates(int model) {
     std::printf("%-30s %12.8e\n", "ey", ey);
     std::printf("%-30s %12.8e\n", "ro", r0);
     std::printf("%-30s %12.8e\n", "pnumber", pnumber);
-    */
+  */
   // ibs growth rates update
   switch (model) {
   case 1:
@@ -359,11 +359,11 @@ void Bunch::getIBSGrowthRates(int model) {
   }
 
   std::vector<double> ibsgr;
-  for (int i; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
+    // std::printf("%-30s %12.8e\n", "ibs", ibs[i]);
     ibsgr.push_back(ibs[i] * 2.0 * bunchParam["fracibstot"] *
                     bunchParam["nMacro"] * bunchParam["timeRatio"] /
                     bunchParam["nReal"]);
-    std::printf("%12.8e\n", ibs[i]);
   }
   ibsGrowthRates.push_back(ibsgr);
 }
@@ -377,8 +377,12 @@ void Bunch::getIBSCoefficients() {
   double alfax = ibsgr[1];
   double alfay = ibsgr[2];
   double alfap = ibsgr[0];
-
-  double dtsamp2 = 2 * longitudinalParameters["tauhat"] / bunchParam["nbins"];
+  /*
+    std::printf("%-30s %12.8e\n", "alfax", alfax);
+    std::printf("%-30s %12.8e\n", "alfay", alfay);
+    std::printf("%-30s %12.8e\n", "alfap", alfap);
+  */
+  double dtsamp2 = 2.0 * longitudinalParameters["tauhat"] / bunchParam["nbins"];
   double rmsdelta = CalcRMS(distribution)[5];
   std::vector<double> emit = emittances.back();
   double sigs = emit[3];
@@ -428,6 +432,35 @@ void Bunch::getIBSCoefficients() {
   ibsCoeff.push_back(ibscoeffs);
 }
 
+void Bunch::updateIBS(std::vector<double> &h) {
+  histogramTime = ParticlesTimesToHistogram(
+      distribution, bunchParam["nbins"], longitudinalParameters["tauhat"] / 2.,
+      longitudinalParameters["phisNext"] / (h[0] * twheader["omega"]));
+  /*
+    for (std::vector<int>::const_iterator i = histogramTime.begin();
+         i != histogramTime.end(); ++i) {
+      std::printf("%3i\n", *i);
+    }
+  */
+  getIBSGrowthRates(bunchParam["model"]);
+  getIBSCoefficients();
+  /*
+  std::for_each(ibsCoeff.begin(), ibsCoeff.end(),
+                [](std::vector<double> &particle) {
+                  std::printf("%12.8e %12.8e %12.8e \n", particle[0],
+                              particle[1], particle[2]);
+                });
+*/
+  sqrthistogram = HistogramToSQRTofCumul(histogramTime, ibsCoeff.back()[3]);
+  // for (std::vector<double>::const_iterator i = sqrthistogram.begin();
+  //   i != sqrthistogram.end(); ++i)
+  //  std::printf("%4.2f ", *i);
+  // std::printf("\n");
+}
+/*
+************************************************************************************************************************
+************************************************************************************************************************
+*/
 void Bunch::printBunchParameters() {
   std::printf("%-30s\n", "Bunch Parameters");
   std::printf("%-30s\n", "================");
