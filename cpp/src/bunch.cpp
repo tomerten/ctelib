@@ -527,6 +527,11 @@ void Bunch::printIBSGrowthRates() {
   std::printf("\n");
 };
 
+void Bunch::printDebunchLosses() {
+  for (int i = 0; i < debunchLosses.size(); i++) {
+    std::printf("%12i\n", debunchLosses[i]);
+  };
+}
 #define MAX_DATE 12
 
 std::string Bunch::get_date() {

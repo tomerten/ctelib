@@ -31,6 +31,7 @@ public:
   std::vector<std::vector<double>> ibsCoeff;
   std::vector<int> histogramTime;
   std::vector<double> sqrthistogram;
+  std::vector<int> debunchLosses;
 
   std::map<std::string, std::vector<double>> bunchParametersLocal;
   std::map<std::string, double> radiationParameters;
@@ -65,6 +66,7 @@ public:
   void printIBSGrowthRates();
   void printHistogramTime();
   void printSqrtHistorgram();
+  void printDebunchLosses();
 
   // write to file methods
   void writeDistribution(int);

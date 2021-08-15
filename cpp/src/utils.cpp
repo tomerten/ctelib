@@ -193,3 +193,51 @@ std::vector<double> HistogramToSQRTofCumul(std::vector<int> inputHistogram,
 
   return vcoeff;
 }
+
+std::map<std::string, double> readInput(std::string filename) {
+  std::vector<std::string> ALLOWEDKEYS{
+      "bucket",      "atomNumber", "charge",    "nMacro",
+      "nReal",       "nbins",      "sigs",      "seed",
+      "ex",          "ey",         "timeRatio", "fracibstot",
+      "ibsCoupling", "model",      "nturns",    "nwrite"};
+
+  std::map<std::string, double> out;
+  std::string line;
+  std::ifstream file(filename);
+
+  std::getline(file, line);
+
+  // check if file is open
+  if (file.is_open()) {
+    std::string key;
+    double value;
+    std::istringstream iss(line);
+    iss >> key >> value;
+
+    vector<string>::iterator it =
+        find(ALLOWEDKEYS.begin(), ALLOWEDKEYS.end(), key);
+    // cout << key << " " << value << " " << endl;
+    if (it != ALLOWEDKEYS.end()) {
+      out[key] = value;
+    }
+    while (!file.eof()) {
+      std::getline(file, line);
+      std::istringstream iss(line);
+      iss >> key >> value;
+
+      vector<string>::iterator it =
+          find(ALLOWEDKEYS.begin(), ALLOWEDKEYS.end(), key);
+      // cout << key << " " << value << " " << endl;
+      if (it != ALLOWEDKEYS.end()) {
+        out[key] = value;
+      }
+    }
+
+    file.close();
+  }
+  return out;
+}
+
+bool isInLong(std::vector<double> particle, double tauhat, double synctime) {
+  return !(abs(particle[4] - synctime) < tauhat);
+}

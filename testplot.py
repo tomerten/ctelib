@@ -6,14 +6,14 @@ from matplotlib import pyplot as plt
 
 
 def main():
-    file = "./cpp/tests/bin/Distribution_bucket_0_14_08_2021.dat"
+    file = "./cpp/tests/bin/Distribution_bucket_0_15_08_2021.dat"
     df = pd.read_csv(
         file, delim_whitespace=True, header=None, names=["id", "x", "px", "y", "py", "t", "delta"]
     )
     df["turn"] = df.groupby("id").cumcount() + 1
     dfg = df.groupby("turn")
 
-    emitfile = "./cpp/tests/bin/CTE_Emittances_0_14_08_2021.dat"
+    emitfile = "./cpp/tests/bin/CTE_Emittances_0_15_08_2021.dat"
     dfe = pd.read_csv(
         emitfile, delim_whitespace=True, header=None, names=["id", "ex", "ey", "sigs", "sige"]
     )

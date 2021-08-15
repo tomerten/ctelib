@@ -2,6 +2,7 @@
 #include "../include/cte_bits/hamiltonian.hpp"
 #include "../include/cte_bits/random.hpp"
 #include "../include/cte_bits/synch.hpp"
+#include "../include/cte_bits/utils.hpp"
 #include <algorithm>
 #include <complex>
 #include <ibs>
@@ -93,7 +94,7 @@ void updateRad(std::vector<std::vector<double>> &dist,
 void updateRF(std::vector<std::vector<double>> &dist, double fmix,
               std::map<std::string, double> &tw,
               std::map<std::string, double> &longparam, std::vector<double> &hs,
-              std::vector<double> &vs) {
+              std::vector<double> &vs, std::vector<int> &debunch) {
 
   std::for_each(
       dist.begin(), dist.end(),
@@ -120,23 +121,34 @@ void updateRF(std::vector<std::vector<double>> &dist, double fmix,
 
         particle[5] += fmix * voltdiff * charge / (betar * betar * p0);
       });
-
-  // print out for debug
+  // debunching losses
+  std::vector<double> tauhatvect(dist.size());
+  std::fill(tauhatvect.begin(), tauhatvect.end(), longparam["tauhat"]);
+  std::vector<std::vector<double>>::iterator new_end = std::remove_if(
+      dist.begin(), dist.end(), [&](std::vector<double> particle) {
+        return isInLong(particle, longparam["tauhat"],
+                        longparam["phisNext"] / (hs[0] * tw["omega"]));
+        // print out for debug
+      });
   /*
-  std::for_each(dist.begin(), dist.end(), [](std::vector<double> &particle) {
-    std::printf("%12.8e %12.8e %12.8e %12.8e %12.8e %12.8e\n", particle[0],
-                particle[1], particle[2], particle[3], particle[4],
+  std::for_each(dist.begin(), dist.end(), [](std::vector<double>
+  &particle) { std::printf("%12.8e %12.8e %12.8e %12.8e %12.8e %12.8e\n",
+  particle[0], particle[1], particle[2], particle[3], particle[4],
                 particle[5]);
   });
 
   std::printf("\n");
   */
+  // registering the debunching losses - cumul until written to file
+  int debunchlosses = dist.size() - (new_end - dist.begin());
+  debunch.push_back(debunchlosses);
+
+  dist.resize(new_end - dist.begin());
 }
 
 void updateBeta(std::vector<std::vector<double>> &dist,
                 std::map<std::string, double> tw, double coupling, double K2L,
                 double K2SL) {
-
   double qx = tw["Q1"];
   double qy = tw["Q2"];
   double ksix = tw["DQ1"];

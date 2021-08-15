@@ -1,0 +1,16 @@
+bucket  0
+atomNumber  5.44617021e-04
+charge  -1
+nMacro  1000
+nReal  1.e10
+nbins  100
+sigs  0.005
+seed  123456
+ex  5.5e-9
+ey  2.75e-10
+timeRatio  100.0
+fracibstot  1.0
+ibsCoupling  0.0
+model  1
+nturns 100
+nwrite 10

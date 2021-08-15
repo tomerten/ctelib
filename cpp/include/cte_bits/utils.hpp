@@ -1,5 +1,6 @@
+#include <map>
+#include <string>
 #include <vector>
-
 struct ParticleTimesToInteger {
   /*
   0 -> tauahat = half the phase acceptance
@@ -24,3 +25,5 @@ std::vector<double> vectorSub(std::vector<double> x, std::vector<double> y);
 std::vector<double> CalcRMS(std::vector<std::vector<double>> &dist);
 std::vector<double> HistogramToSQRTofCumul(std::vector<int> inputHistogram,
                                            double coeff);
+std::map<std::string, double> readInput(std::string filename);
+bool isInLong(std::vector<double> particle, double tauhat, double synctime);

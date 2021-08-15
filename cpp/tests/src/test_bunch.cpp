@@ -18,7 +18,7 @@ int main() {
   h.push_back(400.0);
   v.push_back(-1.5e6);
 
-  std::map<std::string, double> bp;
+  std::map<std::string, double> bp, in;
   bp["bucket"] = 0;
   bp["atomNumber"] = emass / pmass;
   bp["charge"] = -1;
@@ -33,8 +33,9 @@ int main() {
   bp["fracibstot"] = 1.0;
   bp["ibsCoupling"] = 0.0;
   bp["model"] = 1;
+  in = readInput("testinput.in");
 
-  Bunch testbunch(twheader, tw, bp, h, v);
+  Bunch testbunch(twheader, tw, in, h, v);
   testbunch.printBunchParameters();
   testbunch.printTwissHeader();
   testbunch.printLongParam();
@@ -47,8 +48,10 @@ int main() {
   testbunch.getEmittance();
 
   int barWidth = 70;
-  int nturns = 50000;
-  int nwrite = 1000;
+  int nturns = (int)in["nturns"];
+  int nwrite = (int)in["nwrite"];
+
+  std::printf("nturns %i", nturns);
 
   for (int turn = 0; turn < nturns; turn++) {
 
@@ -72,7 +75,8 @@ int main() {
     PHYSICS::updateRad(testbunch.distribution, testbunch.radiationParameters,
                        bp["seed"]);
     PHYSICS::updateRF(testbunch.distribution, 1.0, testbunch.twheader,
-                      testbunch.longitudinalParameters, h, v);
+                      testbunch.longitudinalParameters, h, v,
+                      testbunch.debunchLosses);
 
     testbunch.updateIBS(h);
     PHYSICS::updateIBS(testbunch.distribution, testbunch.longitudinalParameters,
@@ -85,6 +89,8 @@ int main() {
     }
   }
   std::cout << std::endl;
+  testbunch.printDebunchLosses();
+
   // testbunch.printEmittance();
   testbunch.writeEmittances();
   // testbunch.printIBSGrow // end progressbar

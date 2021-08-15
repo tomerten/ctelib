@@ -15,7 +15,7 @@ void updateRad(std::vector<std::vector<double>> &dist,
 void updateRF(std::vector<std::vector<double>> &dist, double fmix,
               std::map<std::string, double> &tw,
               std::map<std::string, double> &longparam, std::vector<double> &hs,
-              std::vector<double> &vs);
+              std::vector<double> &vs, std::vector<int> &debunch);
 
 void updateBeta(std::vector<std::vector<double>> &dist,
                 std::map<std::string, double> tw, double coupling, double K2L,
